@@ -3,15 +3,41 @@
 # dependencies = [
 #   "faster-whisper>=1.1.0",
 #   "ctranslate2>=4.5.0",
+#   "nvidia-cublas-cu12",
+#   "nvidia-cudnn-cu12>=9",
 # ]
 # ///
 # Blackwell (sm_120) note: needs ctranslate2>=4.5.0; int8 compute crashes on
 # sm_120 in older builds, so we decode in float16 on GPU regardless of how the
 # weights are stored.
 import argparse
+import ctypes
 import json
+import os
 import time
 from pathlib import Path
+
+
+def _preload_cuda_libs():
+    # CTranslate2 dlopen()s libcublas/libcudnn by soname, but a uv ephemeral env
+    # has no system CUDA on the loader path. Preload the pip-provided libs with
+    # RTLD_GLOBAL so the loader resolves them without setting LD_LIBRARY_PATH.
+    try:
+        import nvidia.cublas.lib as cublas_lib
+        import nvidia.cudnn.lib as cudnn_lib
+    except ImportError:
+        return
+    for pkg in (cublas_lib, cudnn_lib):  # cublas first: cudnn depends on it
+        d = os.path.dirname(pkg.__file__)
+        for name in sorted(os.listdir(d)):
+            if ".so" in name:
+                try:
+                    ctypes.CDLL(os.path.join(d, name), mode=ctypes.RTLD_GLOBAL)
+                except OSError:
+                    pass
+
+
+_preload_cuda_libs()
 
 from faster_whisper import WhisperModel
 
