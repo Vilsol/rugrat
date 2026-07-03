@@ -1,6 +1,23 @@
 # /// script
-# requires-python = ">=3.10"
-# dependencies = ["omnilingual-asr"]
+# requires-python = ">=3.10,<3.13"
+# dependencies = [
+#   "omnilingual-asr",
+#   "torch==2.7.1",
+#   "torchaudio==2.7.1",
+# ]
+# [tool.uv.sources]
+# torch = { index = "pytorch-cu128" }
+# torchaudio = { index = "pytorch-cu128" }
+# fairseq2 = { index = "fairseq2-cu128" }
+# fairseq2n = { index = "fairseq2-cu128" }
+# [[tool.uv.index]]
+# name = "pytorch-cu128"
+# url = "https://download.pytorch.org/whl/cu128"
+# explicit = true
+# [[tool.uv.index]]
+# name = "fairseq2-cu128"
+# url = "https://fair.pkg.atmeta.com/fairseq2/whl/pt2.7.1/cu128"
+# explicit = true
 # ///
 # Meta Omnilingual ASR, "Unlimited" variant (handles arbitrary-length audio,
 # no manual VAD splitting). CUDA/Linux only in this harness.
