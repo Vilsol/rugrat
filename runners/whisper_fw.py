@@ -28,13 +28,13 @@ def _preload_cuda_libs():
     except ImportError:
         return
     for pkg in (cublas_lib, cudnn_lib):  # cublas first: cudnn depends on it
-        d = os.path.dirname(pkg.__file__)
-        for name in sorted(os.listdir(d)):
-            if ".so" in name:
-                try:
-                    ctypes.CDLL(os.path.join(d, name), mode=ctypes.RTLD_GLOBAL)
-                except OSError:
-                    pass
+        for d in list(pkg.__path__):  # namespace packages: __file__ is None
+            for name in sorted(os.listdir(d)):
+                if ".so" in name:
+                    try:
+                        ctypes.CDLL(os.path.join(d, name), mode=ctypes.RTLD_GLOBAL)
+                    except OSError:
+                        pass
 
 
 _preload_cuda_libs()
