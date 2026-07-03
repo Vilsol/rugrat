@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 import mlx_whisper
+from huggingface_hub import snapshot_download
 
 p = argparse.ArgumentParser()
 p.add_argument("--audio", required=True)
@@ -17,9 +18,18 @@ p.add_argument("--repo", required=True)
 p.add_argument("--language", default="auto")
 args = p.parse_args()
 
+# mlx_whisper.load_model wants weights.safetensors/weights.npz; some mlx-community
+# repos (e.g. whisper-large-v3-lv-late-cv19) ship model.safetensors instead. Resolve
+# the snapshot and alias it so the loader finds it. No-op for repos that ship npz.
+repo = Path(snapshot_download(args.repo))
+if not (repo / "weights.safetensors").exists() and not (repo / "weights.npz").exists():
+    src = repo / "model.safetensors"
+    if src.exists():
+        (repo / "weights.safetensors").symlink_to(src.name)
+
 lang = None if args.language == "auto" else args.language
 t0 = time.time()
-result = mlx_whisper.transcribe(args.audio, path_or_hf_repo=args.repo, language=lang, verbose=None)
+result = mlx_whisper.transcribe(args.audio, path_or_hf_repo=str(repo), language=lang, verbose=None)
 elapsed = time.time() - t0
 
 out = Path(args.out)

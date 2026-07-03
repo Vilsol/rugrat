@@ -31,8 +31,11 @@ LANGUAGE=lv ./run.sh recording.mp3     # force Latvian on stock whisper models
 | large-v3       | openai whisper-large-v3 (auto language detect)   | mlx-whisper  | faster-whisper |
 | large-v3-turbo | whisper-large-v3-turbo (auto language detect)    | mlx-whisper  | faster-whisper |
 | ailab-lv       | AiLab-IMCS-UL whisper-large-v3-lv-late-cv19      | mlx-whisper  | faster-whisper |
+| ailab-cv17     | AiLab-IMCS-UL whisper-large-v3-lv-late-cv17      | transformers | transformers   |
+| ailab-phono    | AiLab-IMCS-UL whisper-large-v3-lv-phono          | transformers | transformers   |
 | parakeet       | nvidia parakeet-tdt-0.6b-v3 (25 EU langs)        | parakeet-mlx | NeMo           |
 | omnilingual-7b | meta omniASR_LLM_Unlimited_7B_v2                 | — (skipped)  | omnilingual-asr|
+| canary         | nvidia canary-1b-v2 (25 EU langs, Latvian)       | — (skipped)  | NeMo           |
 
 ## Output
 
