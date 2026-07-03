@@ -1,0 +1,20 @@
+# downloaded models (HF cache) + converted wavs
+cache/
+work/
+
+# eval outputs
+results/
+
+# uv script lockfiles (ephemeral envs, regenerated on run)
+runners/*.lock
+.venv/
+
+# audio inputs
+*.mp3
+*.wav
+*.ogg
+*.m4a
+*.flac
+
+__pycache__/
+.DS_Store
