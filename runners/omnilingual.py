@@ -2,8 +2,8 @@
 # requires-python = ">=3.10,<3.13"
 # dependencies = [
 #   "omnilingual-asr",
-#   "torch==2.7.1",
-#   "torchaudio==2.7.1",
+#   "torch==2.8.0",
+#   "torchaudio==2.8.0",
 # ]
 # [tool.uv.sources]
 # torch = { index = "pytorch-cu128" }
@@ -16,7 +16,7 @@
 # explicit = true
 # [[tool.uv.index]]
 # name = "fairseq2-cu128"
-# url = "https://fair.pkg.atmeta.com/fairseq2/whl/pt2.7.1/cu128"
+# url = "https://fair.pkg.atmeta.com/fairseq2/whl/pt2.8.0/cu128"
 # explicit = true
 # ///
 # Meta Omnilingual ASR, "Unlimited" variant (handles arbitrary-length audio,
