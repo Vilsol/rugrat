@@ -13,8 +13,10 @@ LANGUAGE="${LANGUAGE:-auto}"   # LANGUAGE=lv ./run.sh ... to force Latvian on st
 # faster-whisper decoding knobs (apply to large-v3, large-v3-turbo, ailab-lv):
 VAD="${VAD:-1}"                 # Silero VAD filter: strips silence/applause (kills hallucination)
 BEAM="${BEAM:-8}"              # beam size (default whisper is 5)
-NO_REPEAT="${NO_REPEAT:-3}"    # no_repeat_ngram_size: 3 kills verbatim loops
-REP_PENALTY="${REP_PENALTY:-1.0}"  # 1.0=off; >1 corrupts legit Latvian repeats (būs..būs, laicīgi..laicīgi)
+NO_REPEAT="${NO_REPEAT:-0}"    # 0=off (Whisper default). n=3 corrupts legit Latvian repeats
+                               #   (būs..būs -> būšu/būsim); temperature fallback handles loops.
+                               #   If a verbatim loop reappears, try n=6 (blocks long repeats only).
+REP_PENALTY="${REP_PENALTY:-1.0}"  # 1.0=off; >1 also corrupts repeats. Leave off for Latvian.
 INITIAL_PROMPT="${INITIAL_PROMPT:-}"  # INITIAL_PROMPT="terms: features roadmap KPI ..." to bias spelling
 HOTWORDS="${HOTWORDS:-}"              # HOTWORDS="features roadmap KPI" (used when INITIAL_PROMPT unset)
 
