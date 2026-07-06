@@ -14,7 +14,7 @@ LANGUAGE="${LANGUAGE:-auto}"   # LANGUAGE=lv ./run.sh ... to force Latvian on st
 VAD="${VAD:-1}"                 # Silero VAD filter: strips silence/applause (kills hallucination)
 BEAM="${BEAM:-8}"              # beam size (default whisper is 5)
 NO_REPEAT="${NO_REPEAT:-3}"    # no_repeat_ngram_size: 3 kills verbatim loops
-REP_PENALTY="${REP_PENALTY:-1.1}"
+REP_PENALTY="${REP_PENALTY:-1.0}"  # 1.0=off; >1 corrupts legit Latvian repeats (būs..būs, laicīgi..laicīgi)
 INITIAL_PROMPT="${INITIAL_PROMPT:-}"  # INITIAL_PROMPT="terms: features roadmap KPI ..." to bias spelling
 HOTWORDS="${HOTWORDS:-}"              # HOTWORDS="features roadmap KPI" (used when INITIAL_PROMPT unset)
 
