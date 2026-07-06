@@ -24,6 +24,22 @@ LANGUAGE=lv ./run.sh recording.mp3     # force Latvian on stock whisper models
 ./run.sh clean                         # delete downloaded models + work files
 ```
 
+### faster-whisper decoding knobs
+
+Apply to `large-v3`, `large-v3-turbo`, `ailab-lv` (env vars, all optional):
+
+```sh
+VAD=1                                  # Silero VAD: strip silence/applause (default on; kills hallucination loops)
+BEAM=8 NO_REPEAT=3 REP_PENALTY=1.1     # anti-repetition + beam (defaults shown)
+HOTWORDS="features roadmap KPI Rīga"   # bias spelling of English terms / names (reduces latvianization)
+INITIAL_PROMPT="Sapulce. Termini: ..." # richer context prompt (takes precedence over HOTWORDS)
+
+HOTWORDS="features roadmap KPI" LANGUAGE=lv ./run.sh recording.mp3 ailab-lv large-v3
+```
+
+`ailab-lv` (cv19) is converted once from its HF checkpoint to a **float16** CT2
+export (`cache/ct2/cv19-fp16`) instead of the repo's int8 build, for full-precision decoding.
+
 ## Models
 
 | name           | model                                            | mac backend  | linux backend  |

@@ -10,6 +10,14 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 export HF_HOME="$ROOT/cache/hf"
 LANGUAGE="${LANGUAGE:-auto}"   # LANGUAGE=lv ./run.sh ... to force Latvian on stock whisper
 
+# faster-whisper decoding knobs (apply to large-v3, large-v3-turbo, ailab-lv):
+VAD="${VAD:-1}"                 # Silero VAD filter: strips silence/applause (kills hallucination)
+BEAM="${BEAM:-8}"              # beam size (default whisper is 5)
+NO_REPEAT="${NO_REPEAT:-3}"    # no_repeat_ngram_size: 3 kills verbatim loops
+REP_PENALTY="${REP_PENALTY:-1.1}"
+INITIAL_PROMPT="${INITIAL_PROMPT:-}"  # INITIAL_PROMPT="terms: features roadmap KPI ..." to bias spelling
+HOTWORDS="${HOTWORDS:-}"              # HOTWORDS="features roadmap KPI" (used when INITIAL_PROMPT unset)
+
 if [[ "${1:-}" == "clean" ]]; then
   rm -rf "$ROOT/cache" "$ROOT/work"
   echo "removed cache/ and work/ (results/ kept)"
@@ -34,6 +42,11 @@ fi
 DEFAULT_MODELS=(large-v3 large-v3-turbo ailab-lv ailab-cv17 ailab-phono parakeet gemma-e2b gemma-e4b)
 [[ "$PLATFORM" == "cuda" ]] && DEFAULT_MODELS+=(omnilingual-7b canary gemma-12b)
 MODELS=("${@:-${DEFAULT_MODELS[@]}}")
+
+# common faster-whisper tuning flags, assembled from the env knobs above
+FW_TUNE=(--vad "$VAD" --beam-size "$BEAM" --no-repeat-ngram "$NO_REPEAT" --repetition-penalty "$REP_PENALTY")
+[[ -n "$INITIAL_PROMPT" ]] && FW_TUNE+=(--initial-prompt "$INITIAL_PROMPT")
+[[ -n "$HOTWORDS" ]] && FW_TUNE+=(--hotwords "$HOTWORDS")
 
 # --- preprocess: 16kHz mono wav, done once per input file ---
 mkdir -p "$ROOT/work" "$ROOT/results"
@@ -81,9 +94,11 @@ for m in "${MODELS[@]}"; do
     mac:omnilingual-7b)  echo "skipping $m: CUDA-only (7B on Mac is impractical)"; SUMMARY+=("$(printf '%-16s SKIPPED (cuda only)' "$m")") ;;
     mac:canary)          echo "skipping $m: CUDA-only (NeMo)"; SUMMARY+=("$(printf '%-16s SKIPPED (cuda only)' "$m")") ;;
     mac:gemma-12b)       echo "skipping $m: 12B impractical on Mac (use gemma-e2b/e4b)"; SUMMARY+=("$(printf '%-16s SKIPPED (cuda only)' "$m")") ;;
-    cuda:large-v3)       run_model "$m" whisper_fw.py --repo Systran/faster-whisper-large-v3 --language "$LANGUAGE" ;;
-    cuda:large-v3-turbo) run_model "$m" whisper_fw.py --repo deepdml/faster-whisper-large-v3-turbo-ct2 --language "$LANGUAGE" ;;
-    cuda:ailab-lv)       run_model "$m" whisper_fw.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-late-cv19 --subfolder ct2-int8 --language lv ;;
+    cuda:large-v3)       run_model "$m" whisper_fw.py --repo Systran/faster-whisper-large-v3 --language "$LANGUAGE" "${FW_TUNE[@]}" ;;
+    cuda:large-v3-turbo) run_model "$m" whisper_fw.py --repo deepdml/faster-whisper-large-v3-turbo-ct2 --language "$LANGUAGE" "${FW_TUNE[@]}" ;;
+    cuda:ailab-lv)       CV19_CT2="$ROOT/cache/ct2/cv19-fp16"
+                         uv run "$ROOT/runners/ct2_convert.py" --repo AiLab-IMCS-UL/whisper-large-v3-lv-late-cv19 --out "$CV19_CT2" --quant float16
+                         run_model "$m" whisper_fw.py --model-path "$CV19_CT2" --language lv "${FW_TUNE[@]}" ;;
     cuda:ailab-cv17)     run_model "$m" whisper_hf.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-late-cv17 --language lv ;;
     cuda:ailab-phono)    run_model "$m" whisper_hf.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-phono --language lv ;;
     cuda:parakeet)       run_model "$m" parakeet_nemo.py ;;
