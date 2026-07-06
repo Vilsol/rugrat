@@ -34,6 +34,9 @@ LANGUAGE=lv ./run.sh recording.mp3     # force Latvian on stock whisper models
 | ailab-cv17     | AiLab-IMCS-UL whisper-large-v3-lv-late-cv17      | transformers | transformers   |
 | ailab-phono    | AiLab-IMCS-UL whisper-large-v3-lv-phono          | transformers | transformers   |
 | parakeet       | nvidia parakeet-tdt-0.6b-v3 (25 EU langs)        | parakeet-mlx | NeMo           |
+| gemma-e2b      | google gemma-4-E2B-it (audio-LLM, 28s chunks)    | transformers | transformers   |
+| gemma-e4b      | google gemma-4-E4B-it (audio-LLM, 28s chunks)    | transformers | transformers   |
+| gemma-12b      | google gemma-4-12B-it (audio-LLM, 28s chunks)    | — (skipped)  | transformers   |
 | omnilingual-7b | meta omniASR_LLM_Unlimited_7B_v2                 | — (skipped)  | omnilingual-asr|
 | canary         | nvidia canary-1b-v2 (25 EU langs, Latvian)       | — (skipped)  | NeMo           |
 

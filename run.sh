@@ -31,8 +31,8 @@ else
   exit 1
 fi
 
-DEFAULT_MODELS=(large-v3 large-v3-turbo ailab-lv ailab-cv17 ailab-phono parakeet)
-[[ "$PLATFORM" == "cuda" ]] && DEFAULT_MODELS+=(omnilingual-7b canary)
+DEFAULT_MODELS=(large-v3 large-v3-turbo ailab-lv ailab-cv17 ailab-phono parakeet gemma-e2b gemma-e4b)
+[[ "$PLATFORM" == "cuda" ]] && DEFAULT_MODELS+=(omnilingual-7b canary gemma-12b)
 MODELS=("${@:-${DEFAULT_MODELS[@]}}")
 
 # --- preprocess: 16kHz mono wav, done once per input file ---
@@ -76,14 +76,20 @@ for m in "${MODELS[@]}"; do
     mac:ailab-cv17)      run_model "$m" whisper_hf.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-late-cv17 --language lv ;;
     mac:ailab-phono)     run_model "$m" whisper_hf.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-phono --language lv ;;
     mac:parakeet)        run_model "$m" parakeet_run.py ;;
+    mac:gemma-e2b)       run_model "$m" gemma4_hf.py --repo google/gemma-4-E2B-it --language Latvian ;;
+    mac:gemma-e4b)       run_model "$m" gemma4_hf.py --repo google/gemma-4-E4B-it --language Latvian ;;
     mac:omnilingual-7b)  echo "skipping $m: CUDA-only (7B on Mac is impractical)"; SUMMARY+=("$(printf '%-16s SKIPPED (cuda only)' "$m")") ;;
     mac:canary)          echo "skipping $m: CUDA-only (NeMo)"; SUMMARY+=("$(printf '%-16s SKIPPED (cuda only)' "$m")") ;;
+    mac:gemma-12b)       echo "skipping $m: 12B impractical on Mac (use gemma-e2b/e4b)"; SUMMARY+=("$(printf '%-16s SKIPPED (cuda only)' "$m")") ;;
     cuda:large-v3)       run_model "$m" whisper_fw.py --repo Systran/faster-whisper-large-v3 --language "$LANGUAGE" ;;
     cuda:large-v3-turbo) run_model "$m" whisper_fw.py --repo deepdml/faster-whisper-large-v3-turbo-ct2 --language "$LANGUAGE" ;;
     cuda:ailab-lv)       run_model "$m" whisper_fw.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-late-cv19 --subfolder ct2-int8 --language lv ;;
     cuda:ailab-cv17)     run_model "$m" whisper_hf.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-late-cv17 --language lv ;;
     cuda:ailab-phono)    run_model "$m" whisper_hf.py --repo AiLab-IMCS-UL/whisper-large-v3-lv-phono --language lv ;;
     cuda:parakeet)       run_model "$m" parakeet_nemo.py ;;
+    cuda:gemma-e2b)      run_model "$m" gemma4_hf.py --repo google/gemma-4-E2B-it --language Latvian ;;
+    cuda:gemma-e4b)      run_model "$m" gemma4_hf.py --repo google/gemma-4-E4B-it --language Latvian ;;
+    cuda:gemma-12b)      run_model "$m" gemma4_hf.py --repo google/gemma-4-12B-it --language Latvian ;;
     cuda:omnilingual-7b) run_model "$m" omnilingual.py ;;
     cuda:canary)         run_model "$m" canary_nemo.py --language lv ;;
     *) echo "unknown model: $m"; SUMMARY+=("$(printf '%-16s UNKNOWN' "$m")") ;;
